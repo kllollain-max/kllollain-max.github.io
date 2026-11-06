@@ -36,7 +36,14 @@ def build():
     assert [node.text for node in urls.findall('s:url/s:loc', ns)] == [BASE]
     robots = (ROOT / 'robots.txt').read_text()
     assert 'Disallow:' not in robots and all(url in robots for url in expected[1:])
-    assert (ROOT / 'ads.txt').read_text().strip() == 'google.com, pub-3308170767665245, DIRECT, f08c47fec0942fa0'
+    expected_ads = {
+        'google.com, pub-3308170767665245, DIRECT, f08c47fec0942fa0',
+        'google.com, pub-4206368432511517, DIRECT, f08c47fec0942fa0',
+    }
+    ads_lines = (ROOT / 'ads.txt').read_text().splitlines()
+    assert len(ads_lines) == len(expected_ads) and set(ads_lines) == expected_ads, (
+        'ads.txt must contain each approved publisher entry exactly once'
+    )
     output = ROOT / '_site'
     if output.exists(): shutil.rmtree(output)
     output.mkdir()
